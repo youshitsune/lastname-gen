@@ -1,30 +1,41 @@
+import streamlit as st
 import torch
 import torch.nn.functional as F
 
-W = torch.load("weights.pt")
+def run(n):
+    W = torch.load("weights.pt")
 
-with open("last-names.txt", "r") as f:
-    words = list(f.read().splitlines())
+    with open("last-names.txt", "r") as f:
+        words = list(f.read().splitlines())
 
-chars = sorted(list(set(''.join(words))))
-stoi = {s:i+1 for i, s in enumerate(chars)}
-stoi['.'] = 0
-itos = {i:s for s, i in stoi.items()}
+    chars = sorted(list(set(''.join(words))))
+    stoi = {s:i+1 for i, s in enumerate(chars)}
+    stoi['.'] = 0
+    itos = {i:s for s, i in stoi.items()}
+    
+    gen = []
+    for i in range(n):
+        out = []
+        ix = 0
+        while True:
+            x_encode = F.one_hot(torch.tensor([ix]), num_classes=27).float()
+            logits = x_encode @ W
+            cnt = logits.exp()
+            prbs = cnt / cnt.sum(1, keepdims=True)
+            ix = torch.multinomial(cnt, num_samples=1, replacement=True).item()
+            if ix == 0:
+                break
+            else:
+                out.append(itos[ix])
+        gen.append("".join(out))
 
-user_input = int(input("How much last names do you want to generate: "))
+st.write("# Last name generator")
 
-for i in range(user_input):
-    out = []
-    ix = 0
-    while True:
-        x_encode = F.one_hot(torch.tensor([ix]), num_classes=27).float()
-        logits = x_encode @ W
-        cnt = logits.exp()
-        prbs = cnt / cnt.sum(1, keepdims=True)
-        ix = torch.multinomial(cnt, num_samples=1, replacement=True).item()
-        if ix == 0:
-            break
-        else:
-            out.append(itos[ix])
-    print("".join(out))
+n = st.number_input('How much last names do you want to generate')
+if n and st.button("Generate"):
+    out = run(n)
+    st.write("Generated last names are:")
+    for i in out:
+        st.write(f"{i}")
+
 
