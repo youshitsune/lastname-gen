@@ -31,7 +31,7 @@ def run(n):
 
 st.write("# Last name generator")
 
-n = st.number_input('How much last names do you want to generate')
+n = st.number_input('How much last names do you want to generate', value=int)
 if n and st.button("Generate"):
     out = run(n)
     st.write("Generated last names are:")
