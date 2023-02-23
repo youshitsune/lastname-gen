@@ -32,7 +32,7 @@ def run(n):
     return gen
 
 st.write("# Last name generator")
-st.write("### Source code: https://github.com/youshitsune/lastname_gen")
+st.write("Source code: https://github.com/youshitsune/lastname_gen")
 n = st.number_input('How much last names do you want to generate', min_value=1, max_value=10, value=1, step=1)
 if n and st.button("Generate"):
     out = run(n)
