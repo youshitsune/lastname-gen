@@ -29,6 +29,8 @@ def run(n):
                 out.append(itos[ix])
         gen.append("".join(out))
 
+    return gen
+
 st.write("# Last name generator")
 
 n = st.number_input('How much last names do you want to generate', min_value=1, max_value=10, value=1, step=1)
