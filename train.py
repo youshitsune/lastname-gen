@@ -28,7 +28,7 @@ for k in range(500):
     logits = x_encode @ W
     cnt = logits.exp()
     prbs = cnt / cnt.sum(1, keepdims=True)
-    loss = -prbs[torch.arrange(num), ys].log().mean()
+    loss = -prbs[torch.arange(num), ys].log().mean()
 
     W.grad = None
     loss.backward()
