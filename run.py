@@ -3,7 +3,12 @@ import torch
 import torch.nn.functional as F
 
 def run(n):
-    W = torch.load("weights.pt")
+    C = torch.load("c.pt")
+    W1 = torch.load("w1.pt")
+    b1 = torch.load("b1.pt")
+    W2 = torch.load("w2.pt")
+    b2 = torch.load("b2.pt")
+    block_size = 3
 
     with open("last-names.txt", "r") as f:
         words = list(f.read().splitlines())
@@ -14,20 +19,21 @@ def run(n):
     itos = {i:s for s, i in stoi.items()}
     
     gen = []
-    for i in range(n):
+    for _ in range(n):
         out = []
-        ix = 0
+        context = [0] * block_size
         while True:
-            x_encode = F.one_hot(torch.tensor([ix]), num_classes=27).float()
-            logits = x_encode @ W
-            cnt = logits.exp()
-            prbs = cnt / cnt.sum(1, keepdims=True)
-            ix = torch.multinomial(cnt, num_samples=1, replacement=True).item()
+            emb = C[torch.tensor([context])]
+            h = torch.tanh(emb.view(1, -1) @ W1 + b1)
+            logits = h @ W2 + b2
+            probs = F.softmax(logits, dim=1)
+            ix = torch.multinomial(probs, num_samples=1).item()
+            context = context[1:] + [ix]
             if ix == 0:
                 break
             else:
-                out.append(itos[ix])
-        gen.append("".join(out))
+                out.append(ix)
+        gen.append("".join(itos[i] for i in out))
 
     return gen
 
