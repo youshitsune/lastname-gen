@@ -35,10 +35,10 @@ Xval, Yval = build_dataset(words[n1:n2])
 Xte, Yte = build_dataset(words[n2:])
 
 C = torch.randn((27, 10))
-W1 = torch.randn((30, 200))
-b1 = torch.randn(200)
-W2 = torch.randn((200, 27))
-b2 = torch.randn(27)
+W1 = torch.randn((30, 200)) * 0.2
+b1 = torch.randn(200) * 0.01
+W2 = torch.randn((200, 27)) * 0.01
+b2 = torch.randn(27) * 0
 parameters = [C, W1, b1, W2, b2]
 
 for p in parameters:
