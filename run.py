@@ -2,13 +2,63 @@ import streamlit as st
 import torch
 import torch.nn.functional as F
 
+class Linear:
+    def __init__(self, fan_in, fan_out, bias=True):
+        self.weight = torch.randn((fan_in, fan_out))
+        self.bias = torch.zeros(fan_out) if bias else None
+
+    def __call__(self, x):
+        self.out = x @ self.weight
+        if self.bias is not None:
+            self.out += self.bias
+        return self.out
+
+    def parameters(self):
+        return [self.weight] + ([] if self.bias is None else [self.bias])
+
+class BatchNorm1d:
+    def __init__(self, dim, eps=1e-5, momentum=0.1):
+        self.eps = eps
+        self.momentum = momentum
+        self.training = True
+        self.gamma = torch.ones(dim)
+        self.beta = torch.zeros(dim)
+        self.running_mean = torch.zeros(dim)
+        self.running_var = torch.ones(dim)
+
+    def __call__(self, x):
+        if self.training:
+            xmean = x.mean(0, keepdim=True)
+            xvar = x.var(0, keepdim=True)
+        else:
+            xmean = self.running_mean
+            xvar = self.running_var
+        xhat = (x - xmean) / torch.sqrt(xvar+self.eps)
+        self.out = self.gamma * xhat + self.beta
+
+        if self.training:
+            with torch.no_grad():
+                self.running_mean = (1 - self.momentum) * self.running_mean + self.momentum * xmean
+                self.running_var = (1 - self.momentum) * self.running_var + self.momentum * xvar
+
+        return self.out
+
+    def parameters(self):
+        return [self.gamma, self.beta]
+
+class Tanh:
+    def __call__(self, x):
+        self.out = torch.tanh(x)
+        return self.out
+    def parameters(self):
+        return []
+
 def run(n):
     C = torch.load("c.pt")
-    W1 = torch.load("w1.pt")
-    b1 = torch.load("b1.pt")
-    W2 = torch.load("w2.pt")
-    b2 = torch.load("b2.pt")
+    layers = torch.load("layers.pt")
     block_size = 3
+    for layer in layers:
+        layer.training = False
 
     with open("last-names.txt", "r") as f:
         words = list(f.read().splitlines())
@@ -24,8 +74,10 @@ def run(n):
         context = [0] * block_size
         while True:
             emb = C[torch.tensor([context])]
-            h = torch.tanh(emb.view(1, -1) @ W1 + b1)
-            logits = h @ W2 + b2
+            x = emb.view(emb.shape[0], -1)
+            for layer in layers:
+                x = layer(x)
+            logits = x
             probs = F.softmax(logits, dim=1)
             ix = torch.multinomial(probs, num_samples=1).item()
             context = context[1:] + [ix]
@@ -34,7 +86,6 @@ def run(n):
             else:
                 out.append(ix)
         gen.append("".join(itos[i] for i in out))
-
     return gen
 
 st.write("# Last name generator")
