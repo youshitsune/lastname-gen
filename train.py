@@ -76,6 +76,7 @@ class BatchNorm1d:
 
         return self.out
 
+
     def parameters(self):
         return [self.gamma, self.beta]
 
