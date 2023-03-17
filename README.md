@@ -18,7 +18,7 @@ git clone https://github.com/youshitsune/lastname-gen
 
 If you want to just run pre-trained model, just run run.py script.
 ```bash
-python3 run.py
+python3 run_local.py
 ```
 
 If you want to train it, run train.py script.
@@ -27,7 +27,7 @@ python3 train.py
 ```
 Then you can use it.
 ```bash
-python3 run.py
+python3 run_local.py
 ```
 
 ### Usage (on web)
