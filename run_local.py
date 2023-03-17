@@ -1,4 +1,3 @@
-import streamlit as st
 import torch
 import torch.nn.functional as F
 
@@ -85,7 +84,6 @@ for _ in range(n):
         else:
             out.append(ix)
     gen.append("".join(itos[i] for i in out))
-return gen
 
-
-
+for i in gen:
+    print(i)
