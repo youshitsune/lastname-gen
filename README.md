@@ -2,6 +2,9 @@
 
 This is Python program that generates last names using very simple "neural net".
 
+- [Usage on your computer](https://github.com/youshitsune/lastname-gen#usage-on-your-computer)
+- [Usage on web](https://github.com/youshitsune/lastname-gen#usage-on-web)
+
 ### Usage (on your computer)
 First, make sure you have PyTorch installed.
 ```bash
@@ -26,3 +29,7 @@ Then you can use it.
 ```bash
 python3 run.py
 ```
+
+### Usage (on web)
+
+Just click [here](https://youshitsune-lastname-gen-run-web-ihqwth.streamlit.app/).

@@ -53,48 +53,39 @@ class Tanh:
     def parameters(self):
         return []
 
-def run(n):
-    C = torch.load("c.pt")
-    layers = torch.load("layers.pt")
-    block_size = 3
-    for layer in layers:
-        layer.training = False
+C = torch.load("c.pt")
+layers = torch.load("layers.pt")
+block_size = 3
+for layer in layers:
+    layer.training = False
 
-    with open("last-names.txt", "r") as f:
-        words = list(f.read().splitlines())
+with open("last-names.txt", "r") as f:
+    words = list(f.read().splitlines())
 
-    chars = sorted(list(set(''.join(words))))
-    stoi = {s:i+1 for i, s in enumerate(chars)}
-    stoi['.'] = 0
-    itos = {i:s for s, i in stoi.items()}
-    
-    gen = []
-    for _ in range(n):
-        out = []
-        context = [0] * block_size
-        while True:
-            emb = C[torch.tensor([context])]
-            x = emb.view(emb.shape[0], -1)
-            for layer in layers:
-                x = layer(x)
-            logits = x
-            probs = F.softmax(logits, dim=1)
-            ix = torch.multinomial(probs, num_samples=1).item()
-            context = context[1:] + [ix]
-            if ix == 0:
-                break
-            else:
-                out.append(ix)
-        gen.append("".join(itos[i] for i in out))
-    return gen
+chars = sorted(list(set(''.join(words))))
+stoi = {s:i+1 for i, s in enumerate(chars)}
+stoi['.'] = 0
+itos = {i:s for s, i in stoi.items()}
 
-st.write("# Last name generator")
-st.write("Source code: https://github.com/youshitsune/lastname-gen")
-n = st.slider('How much last names do you want to generate', min_value=1, max_value=10, value=1, step=1)
-if n and st.button("Generate"):
-    out = run(n)
-    st.write("Generated last names are:")
-    for i in out:
-        st.write(f"{i}")
+gen = []
+for _ in range(n):
+    out = []
+    context = [0] * block_size
+    while True:
+        emb = C[torch.tensor([context])]
+        x = emb.view(emb.shape[0], -1)
+        for layer in layers:
+            x = layer(x)
+        logits = x
+        probs = F.softmax(logits, dim=1)
+        ix = torch.multinomial(probs, num_samples=1).item()
+        context = context[1:] + [ix]
+        if ix == 0:
+            break
+        else:
+            out.append(ix)
+    gen.append("".join(itos[i] for i in out))
+return gen
+
 
 

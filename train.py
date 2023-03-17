@@ -76,6 +76,7 @@ class BatchNorm1d:
 
         return self.out
 
+
     def parameters(self):
         return [self.gamma, self.beta]
 
@@ -135,3 +136,4 @@ for i in range(max_steps):
 
 torch.save(C, "c.pt")
 torch.save(layers, "layers.pt")
+
