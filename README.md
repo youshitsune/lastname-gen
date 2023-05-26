@@ -32,4 +32,4 @@ python3 run_local.py
 
 ### Usage (on web)
 
-Just click [here](https://youshitsune-lastname-gen-run-web-o7enxv.streamlit.app/).
+Just click [here](https://lastname-gen.streamlit.app/).
